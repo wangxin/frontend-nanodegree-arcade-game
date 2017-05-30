@@ -80,7 +80,7 @@ var Engine = (function(global) {
      */
     function update(dt) {
         updateEntities(dt);
-        // checkCollisions();
+        checkCollisions();
     }
 
     /* This is called by the update function and loops through all of the
@@ -91,10 +91,36 @@ var Engine = (function(global) {
      * render methods.
      */
     function updateEntities(dt) {
-        allEnemies.forEach(function(enemy) {
+        game.allEnemies.forEach(function(enemy) {
             enemy.update(dt);
         });
-        player.update();
+        game.player.update();
+        game.update(dt);
+    }
+
+    function checkCollisions() {
+        if (game.state === 'playing') {
+            var collision = false;
+            for (var i=0; i< game.allEnemies.length; i++) {
+                enemy = game.allEnemies[i];
+                if (enemy.y === game.player.y) {
+                    if (((enemy.x + cellWidth - 25) >= game.player.x) && ((game.player.x + cellWidth - 25) >= enemy.x)) {
+                        collision = true;
+                        break;
+                    }
+                }
+            }
+            if (collision) {
+                game.state = 'fail';
+                game.allEnemies.forEach(function(enemy) {
+                    enemy.speed = 0;
+                }); 
+                game.numLife--;
+                if (game.numLife <= 0) {
+                    game.state = 'over';
+                }
+            }
+        }        
     }
 
     /* This function initially draws the "game level", it will then call
@@ -132,7 +158,7 @@ var Engine = (function(global) {
                  * so that we get the benefits of caching these images, since
                  * we're using them over and over.
                  */
-                ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
+                ctx.drawImage(Resources.get(rowImages[row]), col * cellWidth, row * cellHeight);
             }
         }
 
@@ -147,11 +173,14 @@ var Engine = (function(global) {
         /* Loop through all of the objects within the allEnemies array and call
          * the render function you have defined.
          */
-        allEnemies.forEach(function(enemy) {
-            enemy.render();
+        game.gems.forEach(function(gem) {
+            gem.render();
         });
-
-        player.render();
+        game.allEnemies.forEach(function(enemy) {
+            enemy.render();
+        });        
+        game.render();
+        game.player.render();
     }
 
     /* This function does nothing but it could have been a good place to
@@ -171,7 +200,19 @@ var Engine = (function(global) {
         'images/water-block.png',
         'images/grass-block.png',
         'images/enemy-bug.png',
-        'images/char-boy.png'
+        'images/char-boy.png',
+        'images/char-cat-girl.png',
+        'images/char-horn-girl.png',
+        'images/char-pink-girl.png',
+        'images/char-princess-girl.png',
+        'images/Gem Blue.png',
+        'images/Gem Green.png',
+        'images/Gem Orange.png',
+        'images/Heart.png',
+        'images/Key.png',
+        'images/Rock.png',
+        'images/Selector.png',
+        'images/Star.png'
     ]);
     Resources.onReady(init);
 
