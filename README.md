@@ -7,9 +7,11 @@ This is a project for the frontend nanodegree arcade game.
 ## Prerequisite
 
 * HTTP server
+
 HTTP server is required to serve the files.
 
 * Browser
+
 This game must be run in browser.
 
 ### Setup http server
