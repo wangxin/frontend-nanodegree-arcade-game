@@ -104,18 +104,16 @@ var Engine = (function(global) {
             var collision = false;
             for (var i=0; i< game.allEnemies.length; i++) {
                 enemy = game.allEnemies[i];
-                if (enemy.y === game.player.y) {
-                    if (((enemy.x + cellWidth - 25) >= game.player.x) && ((game.player.x + cellWidth - 25) >= enemy.x)) {
-                        collision = true;
-                        break;
-                    }
-                }
+                if (enemy.checkCollision(game.player)) {
+                    collision = true;
+                    break;
+                }            
             }
             if (collision) {
                 game.state = 'fail';
                 game.allEnemies.forEach(function(enemy) {
                     enemy.speed = 0;
-                }); 
+                });
                 game.numLife--;
                 if (game.numLife <= 0) {
                     game.state = 'over';
@@ -126,17 +124,14 @@ var Engine = (function(global) {
 
     function collectGems() {
         if (game.state === 'playing') {
-
             var foundGem = false;
             var gemIndex = -1;
             for (var i=0; i<game.gems.length; i++) {
                 gem = game.gems[i];
-                if ((gem.x > game.player.x) && (gem.x < (game.player.x + cellWidth))) {
-                    if ((gem.y > game.player.y) && (gem.y < (game.player.y + cellHeight))) {
-                        foundGem = true;
-                        gemIndex = i;
-                        break;
-                    }
+                if (gem.checkCollision(game.player)) {
+                    foundGem = true;
+                    gemIndex = i;
+                    break;
                 }
             }
 

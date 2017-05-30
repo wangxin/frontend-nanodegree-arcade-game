@@ -45,6 +45,15 @@ Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
+Enemy.prototype.checkCollision = function(player) {
+    if (this.y === player.y) {
+        if (((this.x + cellWidth - 25) >= player.x) && ((player.x + cellWidth - 25) >= this.x)) {
+            return true;
+        }
+    }
+    return false;
+};
+
 var characters = [
     'images/char-boy.png',
     'images/char-cat-girl.png',
@@ -142,6 +151,15 @@ Gem.prototype.updatePosition = function (row, col) {
 
 Gem.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y, 50, 80);
+};
+
+Gem.prototype.checkCollision = function(player) {
+    if ((this.x > player.x) && (this.x < (player.x + cellWidth))) {
+        if ((this.y > player.y) && (this.y < (player.y + cellHeight))) {
+            return true;
+        }
+    }
+    return false;
 };
 
 // For holding objects of the game like enemies, gems and player
