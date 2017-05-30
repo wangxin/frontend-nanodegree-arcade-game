@@ -36,7 +36,7 @@ Any HTTP server should be OK to serve the files of this game. In this example, h
 * You target is move the player so that it can accross the rock land and reach the river.
 * While the player is on the rock land, try to avoid the bugs. If the player collide a bug, game will fail.
 * For each game, you have 3 chances to fail. The number of hearts displayed on the upper left corner is the number of chances you got.
-* If you used up all your 3 changes, game will over. Press space can restart a new game.
+* If you used up all your 3 chances, game will over. Press space can restart a new game.
 * There are gems on the rock land that the player can collect to score. 
   * Green = 100 scores
   * Blue = 200 scores
