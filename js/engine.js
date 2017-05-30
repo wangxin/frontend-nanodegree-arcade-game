@@ -81,6 +81,7 @@ var Engine = (function(global) {
     function update(dt) {
         updateEntities(dt);
         checkCollisions();
+        collectGems();
     }
 
     /* This is called by the update function and loops through all of the
@@ -121,6 +122,29 @@ var Engine = (function(global) {
                 }
             }
         }        
+    }
+
+    function collectGems() {
+        if (game.state === 'playing') {
+
+            var foundGem = false;
+            var gemIndex = -1;
+            for (var i=0; i<game.gems.length; i++) {
+                gem = game.gems[i];
+                if ((gem.x > game.player.x) && (gem.x < (game.player.x + cellWidth))) {
+                    if ((gem.y > game.player.y) && (gem.y < (game.player.y + cellHeight))) {
+                        foundGem = true;
+                        gemIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            if (foundGem) {
+                game.score += game.gems[gemIndex].score;
+                game.gems.splice(gemIndex, 1);
+            }
+        }
     }
 
     /* This function initially draws the "game level", it will then call
@@ -172,13 +196,13 @@ var Engine = (function(global) {
     function renderEntities() {
         /* Loop through all of the objects within the allEnemies array and call
          * the render function you have defined.
-         */
+         */        
         game.gems.forEach(function(gem) {
             gem.render();
-        });
+        });  
         game.allEnemies.forEach(function(enemy) {
             enemy.render();
-        });        
+        });              
         game.render();
         game.player.render();
     }

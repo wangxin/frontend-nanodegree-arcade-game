@@ -2,6 +2,7 @@
 var cellWidth = 101;
 var cellHeight = 83;
 
+// Helper function for getting random integer number
 var getRandomIntInclusive = function (min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
@@ -37,11 +38,6 @@ Enemy.prototype.update = function(dt) {
 };
 
 Enemy.prototype.reset = function() {
-    /*
-    this.x = getRandomIntInclusive(0, 505);
-    this.y = cellHeight * getRandomIntInclusive(1, 3);
-    this.speed = getRandomIntInclusive(100, 300);
-    */
 };
 
 // Draw the enemy on the screen, required method for game
@@ -69,11 +65,13 @@ var Player = function () {
     this.y = this.row * cellHeight;
 };
 
+// Update the actual position of player on canvas
 Player.prototype.update = function() {
     this.x = this.col * cellWidth;
     this.y = this.row * cellHeight;
 };
 
+// For changing the character image of player
 Player.prototype.changeChar = function(direction) {
     if (direction === 'left') {
         this.charIndex--;
@@ -134,16 +132,23 @@ var Gem = function (color, row, col) {
         this.score = 300;
     }
 
-    this.x = (col % 5) * cellWidth;
-    this.y = (row % 3) * cellHeight;
+    this.updatePosition(row, col);
+};
+
+Gem.prototype.updatePosition = function (row, col) {    
+    this.x = col * cellWidth + cellWidth * 0.2;
+    this.y = row * cellHeight + cellHeight * 0.5;
 };
 
 Gem.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y, 50, 80);
 };
 
+// For holding objects of the game like enemies, gems and player
+// Another important role of this class is for state of game
+// When the game is in different state, show different information on canvas
 var Game = function () {
-    //State of game could be: new, playing, win, over
+    //State of game could be: new, playing, win, over, fail
     this.lifeImage = 'images/Heart.png';
     this.charSelector = 'images/Selector.png';
     this.state = 'new';
@@ -161,9 +166,33 @@ var Game = function () {
 
 Game.prototype.addGems = function () {
     this.gems = [];
+
     var gemColors = ['green', 'blue', 'orange'];
-    for (var i=0; i< gemColors.length; i++) {
-        this.gems.push(new Gem(gemColors[i], getRandomIntInclusive(1, 3), getRandomIntInclusive(0, 5)));
+
+    // Generate unique positions for gems on canvas
+    var positions = [];
+    while (positions.length<3) {
+        var newPos = {x: getRandomIntInclusive(1, 3), y: getRandomIntInclusive(0, 4)};
+        var occupied = false;
+        console.log('Positions: ', positions);
+        console.log('New Position: ', newPos);
+        for (var i=0; i<positions.length; i++) {
+            console.log('Checking: ', newPos);
+            console.log('Index i: ', i);
+            if ((positions[i].x === newPos.x) && (positions[i].y === newPos.y)) {
+                occupied = true;
+                console.log("Occupied: ", occupied);
+                break;
+            }
+        }
+        if (!occupied) {
+            positions.push(newPos);
+        }
+    }
+
+    //Create gem objects
+    for (var i=0; i<gemColors.length; i++) {
+        this.gems.push(new Gem(gemColors[i], positions[i].x, positions[i].y));
     }
 };
 
@@ -254,14 +283,13 @@ Game.prototype.update = function(dt) {
     }
 };
 
-// Now instantiate your objects.
-// Place all enemy objects in an array called allEnemies
-// Place the player object in a variable called player
+// Now instantiate the game object
+// All other objects like enemies, player and gems are initialized when the game object is initialized
+// And the other objects are attached to the game object
 
 game = new Game();
 
-// This listens for key presses and sends the keys to your
-// Player.handleInput() method. You don't need to modify this.
+// This listens for key presses and handle key pressing events according to different game state
 document.addEventListener('keydown', function(e) {
     var allowedKeys = {
         32: 'space',
@@ -272,6 +300,8 @@ document.addEventListener('keydown', function(e) {
     };
     var key = allowedKeys[e.keyCode];
 
+    // When game state is new, press left/right is for selecting game characters
+    // Pressing space bar to start the game. Then the game state will be changed to 'playing'
     if (game.state === 'new') {
         switch (key) {
             case 'space':
@@ -284,6 +314,7 @@ document.addEventListener('keydown', function(e) {
         }        
     }
 
+    // When game state is playing, only left/right/up/down key pressing events are handled to move player
     if (game.state === 'playing') {
         switch (key) {
             case 'left': 
@@ -293,6 +324,7 @@ document.addEventListener('keydown', function(e) {
                 game.player.moveRight();
                 break;
             case 'up':
+                // If player reached river, change game state to 'win'. Pause moving of enemies
                 game.player.moveUp();
                 if (game.player.row === 0) {
                     game.state = 'win';
@@ -307,44 +339,59 @@ document.addEventListener('keydown', function(e) {
         }
     } 
     
+    // When game state is win, the only allowed key pressing event is space
+    // All the enemies are not moving. Player cannot be moved.
+    // When space is pressed, level up the game and increase speed of enemies
     if (game.state === 'win') {
         if (key === 'space') {
             game.state = 'playing';
-            game.level++;
+            game.level++;       //level up
+
+            // Reset player to original position
             game.player.row = 5;
             game.player.col = 2;
+
+            // Increase speed of enemies
             game.allEnemies.forEach(function (enemy) {
                 enemy.level = game.level;
                 enemy.speed = getRandomIntInclusive(100 + 50 * enemy.level, 300 + 50 * enemy.level);
             });
+
+            // Add new set of gems on canvas
+            game.addGems();
         }
     }
 
     if (game.state === 'fail') {
         if (key === 'space') {
-            game.state = 'playing'
+            game.state = 'playing'  // Retry
             game.player.row = 5;
             game.player.col = 2;
+
+            // Start moving the enemies again. Overall speed is not increased.
             game.allEnemies.forEach(function (enemy) {
                 enemy.level = game.level;
                 enemy.speed = getRandomIntInclusive(100 + 50 * enemy.level, 300 + 50 * enemy.level);
             });
+            game.addGems();     // Add new set of gems on canvas
         }
     }
 
+    // Game is over. Press space to reset the game. Reset almost everything.
     if (game.state === 'over') {
         if (key === 'space') {
             game.state = 'new';
             game.level = 1;
             game.numLife = 3;
             game.time = 0;
+            game.score = 0;
             game.player.row = 5;
             game.player.col = 2;
             game.allEnemies.forEach(function (enemy) {
                 enemy.level = game.level;
                 enemy.speed = getRandomIntInclusive(100 + 50 * enemy.level, 300 + 50 * enemy.level);
             });
+            game.addGems();
         }
     }
-
 });
