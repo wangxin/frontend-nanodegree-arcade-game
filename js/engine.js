@@ -1,3 +1,5 @@
+'use strict';
+
 /* Engine.js
  * This file provides the game loop functionality (update entities and render),
  * draws the initial game board on the screen, and then calls the update and
@@ -103,7 +105,7 @@ var Engine = (function(global) {
         if (game.state === 'playing') {
             var collision = false;
             for (var i=0; i< game.allEnemies.length; i++) {
-                enemy = game.allEnemies[i];
+                var enemy = game.allEnemies[i];
                 if (enemy.checkCollision(game.player)) {
                     collision = true;
                     break;
@@ -127,7 +129,7 @@ var Engine = (function(global) {
             var foundGem = false;
             var gemIndex = -1;
             for (var i=0; i<game.gems.length; i++) {
-                gem = game.gems[i];
+                var gem = game.gems[i];
                 if (gem.checkCollision(game.player)) {
                     foundGem = true;
                     gemIndex = i;
@@ -177,7 +179,7 @@ var Engine = (function(global) {
                  * so that we get the benefits of caching these images, since
                  * we're using them over and over.
                  */
-                ctx.drawImage(Resources.get(rowImages[row]), col * cellWidth, row * cellHeight);
+                ctx.drawImage(Resources.get(rowImages[row]), col * CELL_WIDTH, row * CELL_HEIGHT);
             }
         }
 

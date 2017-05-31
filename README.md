@@ -4,29 +4,7 @@ This is a project for the frontend nanodegree arcade game.
 
 ## How to run the game
 
-## Prerequisite
-
-* HTTP server
-
-HTTP server is required to serve the files.
-
-* Browser
-
-This game must be run in browser.
-
-### Setup http server
-
-Any HTTP server should be OK to serve the files of this game. In this example, http server of python3 is used as an example. Assume the files are stored under folder 'arcade-game'.
-
-```
-# cd arcade-game
-# python -m http.server
-```
-
-### Run the game
-
-* Open browser like Chrome.
-* Input URL: http://localhost:8000/index.html
+Just navigate to the index.html file and open it using a modern browser like Chrome, Firefox, Safari or Edge.
 
 ## How to play the game
 
